@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Web Scraper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f7fb;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: #0f172a;
+    color: white;
+    height: 100vh;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-bottom: 20px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    background: #1e293b;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.sidebar button:hover {
+    background: #334155;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+input {
+    width: 70%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+button.scrape-btn {
+    padding: 12px 20px;
+    margin-left: 10px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button.scrape-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Table */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #f1f5f9;
+}
+
+.loader {
+    margin-top: 15px;
+    display: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Scraper</h2>
+    <button>E-commerce</button>
+    <button>Market Research</button>
+    <button>Business Leads</button>
+    <button>Reviews</button>
+    <button>Real Estate</button>
+</div>
+
+<div class="main">
+    <div class="card">
+        <h2>Scrape Any Website</h2>
+        <p>Extract names, emails, and phone numbers instantly</p>
+
+        <input type="text" id="url" placeholder="Enter website URL">
+        <button class="scrape-btn" onclick="scrape()">Scrape</button>
+
+        <div class="loader" id="loader">⏳ Scraping...</div>
+
+        <table id="table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function scrape() {
+    const url = document.getElementById("url").value;
+    const loader = document.getElementById("loader");
+    const table = document.getElementById("table");
+    const tbody = document.getElementById("tbody");
+
+    tbody.innerHTML = "";
+    table.style.display = "none";
+
+    loader.style.display = "block";
+
+    const res = await fetch(`/api/scrape?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+
+    loader.style.display = "none";
+
+    const maxLen = Math.max(
+        data.names.length,
+        data.phones.length,
+        data.emails.length
+    );
+
+    for (let i = 0; i < maxLen; i++) {
+        tbody.innerHTML += `
+            <tr>
+                <td>${data.names[i] || ''}</td>
+                <td>${data.phones[i] || ''}</td>
+                <td>${data.emails[i] || ''}</td>
+            </tr>
+        `;
+    }
+
+    table.style.display = "table";
+}
+</script>
+
+</body>
+</html>
